@@ -1,23 +1,37 @@
 import groovy.json.JsonSlurper
 
 class Example {
-    int delayBetweenRetries = 30
-    int numberOfRetries = 10
 
     static void main(String[] args) {
         def stagingHelper = new Staging(System.getenv("CI_DEPLOY_USERNAME"), System.getenv("CI_DEPLOY_PASSWORD"));
+        stagingHelper.run(args[0]);
+    }
 
-        switch (args[0]) {
+}
+
+class Staging {
+    int delayBetweenRetries = 30
+    int numberOfRetries = 10
+    String ossUserName
+    String ossPassword
+
+    Staging(String userName, String password) {
+        ossUserName = userName
+        ossPassword = password
+    }
+
+    public void run(String cmd) {
+        switch (cmd) {
             case "close":
                 println "trying to close nexus repository ..."
-                doWithRetry(stagingHelper.close())
+                doWithRetry(this.&close)
                 println " > done"
                 break;
             case "drop":
                 println "trying to drop nexus repository ..."
                 try {
                     def stagingProfileId = stagingHelper.getStagingProfileId()
-                    doWithRetry(stagingHelper.drop())
+                    doWithRetry(this.&drop)
                 } catch (Exception e) {
                     println "No repository to drop found."
                 }
@@ -25,7 +39,7 @@ class Example {
                 break;
             case "promote":
                 println "trying to promote nexus repository ..."
-                doWithRetry(stagingHelper.promote())
+                doWithRetry(this.&promote)
                 println " > done"
                 break;
         }
@@ -53,18 +67,8 @@ class Example {
     void waitBeforeNextAttempt() {
         sleep(Integer.valueOf(delayBetweenRetries))
     }
-}
 
-class Staging {
-    String ossUserName
-    String ossPassword
-
-    Staging(String userName, String password) {
-        ossUserName = userName
-        ossPassword = password
-    }
-
-    public void drop() throws Exception {
+    void drop() {
         def stagingProfileId = getStagingProfileId()
         def repositoryId = getRepositoryId(stagingProfileId, "released");
         def data = getData(stagingProfileId, repositoryId)
@@ -79,7 +83,7 @@ class Staging {
     }
 
 
-    public void close() {
+    void close() {
         def stagingProfileId = getStagingProfileId()
         def repositoryId = getRepositoryId(stagingProfileId, "open");
         def data = getData(stagingProfileId, repositoryId)
@@ -93,7 +97,7 @@ class Staging {
         }
     }
 
-    public void promote() {
+    void promote() {
         def stagingProfileId = getStagingProfileId()
         def repositoryId = getRepositoryId(stagingProfileId, "closed");
         def data = getData(stagingProfileId, repositoryId)
@@ -107,7 +111,7 @@ class Staging {
         }
     }
 
-    public String getStagingProfileId() {
+    String getStagingProfileId() {
         def response = ['bash', '-c', "curl -s -H \"Accept: application/json\" -X GET https://" + ossUserName + ":" + ossPassword + "@oss.sonatype.org/service/local/staging/profiles"].execute().text
 
         def json = new JsonSlurper().parseText(response)
@@ -158,7 +162,7 @@ class Staging {
         return repository.repositoryId
     }
 
-    public String getData(String stagingProfileId, String repositoryId) {
+    String getData(String stagingProfileId, String repositoryId) {
         return "{\"data\" : {\"stagedRepositoryId\" : " + repositoryId + ",\"description\" : \"Automatically released/promoted with Post JenkinsIT!\",  \"targetRepositoryId\" : " + stagingProfileId + " }}"
     }
 
