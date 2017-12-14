@@ -30,7 +30,7 @@ class Staging {
             case "drop":
                 println "trying to drop nexus repository ..."
                 try {
-                    def stagingProfileId = stagingHelper.getStagingProfileId()
+                    def stagingProfileId = this.getStagingProfileId()
                     doWithRetry(this.&drop)
                 } catch (Exception e) {
                     println "No repository to drop found."
