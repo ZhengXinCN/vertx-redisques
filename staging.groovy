@@ -52,8 +52,9 @@ class Staging {
             try {
                 counter++
                 println "Attempt $counter/$numberOfAttempts..."
-                operation()
-                return 0
+                if (operation() == 0) {
+                    return 0
+                }
             } catch (Exception e) {
                 if (counter >= numberOfAttempts) {
                     println "Giving up."
@@ -69,12 +70,12 @@ class Staging {
         sleep(Integer.valueOf(delayBetweenRetries))
     }
 
-    void drop() {
+    int drop() {
         def stagingProfileId = getStagingProfileId()
         def repositoryId = getRepositoryId(stagingProfileId, "released");
-        if (repositoryId == null){
+        if (repositoryId == null) {
             println("No more action.")
-            return
+            return 0
         }
         def data = getData(stagingProfileId, repositoryId)
 
@@ -85,15 +86,16 @@ class Staging {
         if (Integer.valueOf(response) > 299) {
             throw new IllegalArgumentException("HTTP request failed, getting status code: ${response}")
         }
+        return Integer.valueOf(response)
     }
 
 
-    void close() {
+    int close() {
         def stagingProfileId = getStagingProfileId()
         def repositoryId = getRepositoryId(stagingProfileId, "open");
-        if (repositoryId == null){
+        if (repositoryId == null) {
             println("No more action.")
-            return
+            return 0
         }
         def data = getData(stagingProfileId, repositoryId)
 
@@ -104,14 +106,15 @@ class Staging {
         if (Integer.valueOf(response) > 299) {
             throw new IllegalArgumentException("HTTP request failed, getting status code: ${response}")
         }
+        return Integer.valueOf(response)
     }
 
-    void promote() {
+    int promote() {
         def stagingProfileId = getStagingProfileId()
         def repositoryId = getRepositoryId(stagingProfileId, "closed");
-        if (repositoryId == null){
+        if (repositoryId == null) {
             println("No more action.")
-            return
+            return 0
         }
         def data = getData(stagingProfileId, repositoryId)
 
@@ -122,6 +125,7 @@ class Staging {
         if (Integer.valueOf(response) > 299) {
             throw new IllegalArgumentException("HTTP request failed, getting status code: ${response}")
         }
+        return Integer.valueOf(response)
     }
 
     String getStagingProfileId() {
@@ -179,7 +183,7 @@ class Staging {
     }
 
     String getData(String stagingProfileId, String repositoryId) {
-        return "{\"data\" : {\"stagedRepositoryId\" : " + repositoryId + ",\"description\" : \"Automatically released/promoted with Post JenkinsIT!\",  \"targetRepositoryId\" : " + stagingProfileId + " }}"
+        return "{\"data\" : {\"stagedRepositoryId\" : " + repositoryId + ",\"description\" : \"Automatically released/promoted with Travis\",  \"targetRepositoryId\" : " + stagingProfileId + " }}"
     }
 
 }
