@@ -15,7 +15,12 @@ class Example {
                 break;
             case "drop":
                 println "trying to drop nexus repository ..."
-                doWithRetry(stagingHelper.drop())
+                try {
+                    def stagingProfileId = stagingHelper.getStagingProfileId()
+                    doWithRetry(stagingHelper.drop())
+                } catch (Exception e) {
+                    println "No repository to drop found."
+                }
                 println " > done"
                 break;
             case "promote":
