@@ -52,7 +52,8 @@ class Staging {
             try {
                 counter++
                 println "Attempt $counter/$numberOfAttempts..."
-                return operation()
+                operation()
+                return 0
             } catch (Exception e) {
                 if (counter >= numberOfAttempts) {
                     println "Giving up."
