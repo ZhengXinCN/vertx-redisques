@@ -71,6 +71,10 @@ class Staging {
     void drop() {
         def stagingProfileId = getStagingProfileId()
         def repositoryId = getRepositoryId(stagingProfileId, "released");
+        if (repositoryId == null){
+            println("No more action.")
+            return
+        }
         def data = getData(stagingProfileId, repositoryId)
 
         // drop repository
@@ -86,6 +90,10 @@ class Staging {
     void close() {
         def stagingProfileId = getStagingProfileId()
         def repositoryId = getRepositoryId(stagingProfileId, "open");
+        if (repositoryId == null){
+            println("No more action.")
+            return
+        }
         def data = getData(stagingProfileId, repositoryId)
 
         // close repository
@@ -100,6 +108,10 @@ class Staging {
     void promote() {
         def stagingProfileId = getStagingProfileId()
         def repositoryId = getRepositoryId(stagingProfileId, "closed");
+        if (repositoryId == null){
+            println("No more action.")
+            return
+        }
         def data = getData(stagingProfileId, repositoryId)
 
         // promote repository
@@ -141,7 +153,8 @@ class Staging {
         def json = new JsonSlurper().parseText(response)
 
         if (json.data.size() == 0) {
-            throw new IllegalArgumentException("No staging repository found!")
+            println("No staging repository found!")
+            return null
         } else if (json.data.size() > 1) {
             throw new IllegalArgumentException("Multiple staging repositories found!")
         }
@@ -150,11 +163,13 @@ class Staging {
 
         // check state - close
         if (state.equals("open") && !repository.type.equals(state)) {
-            throw new IllegalArgumentException("No open repository found!")
+            println("No open repository found!")
+            return null
         }
 
         if (state.equals("closed") && !repository.type.equals(state)) {
-            throw new IllegalArgumentException("No closed repository found!")
+            println("No closed repository found!")
+            return null
         }
 
         println "Found repositoryId: " + repository.repositoryId
