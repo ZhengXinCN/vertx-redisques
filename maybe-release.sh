@@ -22,12 +22,6 @@ then
         git checkout develop
         git push origin develop
         groovy staging.groovy close
-        rc=$?
-        if [ $rc -ne 0 ]
-        then
-          echo 'Release failed: can not close stage'
-          exit rc
-        fi
         groovy staging.groovy promote
         rc=$?
         if [ $rc -ne 0 ]
