@@ -7,7 +7,10 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.Timeout;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.swisspush.redisques.AbstractTestCase;
 import org.swisspush.redisques.RedisQues;
 import org.swisspush.redisques.util.RedisquesConfiguration;
@@ -128,12 +131,14 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
                 .asJsonObject();
 
         RedisQues redisQues = new RedisQues();
+
         vertx.deployVerticle(redisQues, new DeploymentOptions().setConfig(config), context.asyncAssertSuccess(event -> {
             deploymentId = event;
             log.info("vert.x Deploy - " + redisQues.getClass().getSimpleName() + " was successful.");
             jedis = new Jedis("localhost", 6379, 5000);
             async.complete();
         }));
+        async.awaitSuccess();
     }
 
     @After
