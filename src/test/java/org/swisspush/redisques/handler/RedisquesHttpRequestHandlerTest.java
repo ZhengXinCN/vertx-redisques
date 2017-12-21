@@ -26,8 +26,7 @@ import static org.swisspush.redisques.util.RedisquesAPI.buildPutLockOperation;
  *
  * @author https://github.com/mcweba [Marc-Andre Weber]
  */
-// TODO: investivate why this test fails on travis (sometimes)
-@Ignore
+
 public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
 
     private final String queueItemValid = "{\n" +
@@ -183,8 +182,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     }
 
     @Test
-    @Ignore
-    // TODO: investivate why this test fails on travis
+
     public void setConfiguration(TestContext context) {
         when()
                 .get("/queuing/configuration/")
@@ -202,7 +200,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
 
         // provide not supported configuration values. this should not change the value of the property
         given().body(configurationNotSupportedValues).when().post("/queuing/configuration/")
-                .then().assertThat().statusCode(400).body(containsString("Not supported configuration values received: redisHost"));
+                .then().assertThat().statusCode(400).body(containsString("Not supported configuration values received: [redisHost]"));
         when()
                 .get("/queuing/configuration/")
                 .then().assertThat()
@@ -905,7 +903,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     public void getSingleLock(TestContext context) {
         Async async = context.async();
         flushAll();
-        long ts = System.currentTimeMillis();
+        Long ts = System.currentTimeMillis();
         String lock = "myLock_" + ts;
         String requestedBy = "someuser_" + ts;
         eventBusSend(buildPutLockOperation(lock, requestedBy), message -> {
