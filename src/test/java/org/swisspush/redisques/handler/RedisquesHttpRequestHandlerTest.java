@@ -31,7 +31,7 @@ import static org.swisspush.redisques.util.RedisquesAPI.buildPutLockOperation;
  */
 
 public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
-
+    protected static String deploymentId = "";
     private final String queueItemValid = "{\n" +
             "  \"method\": \"PUT\",\n" +
             "  \"uri\": \"/some/url/123/456\",\n" +
@@ -143,7 +143,11 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
 
     @After
     public void tearDown(TestContext context) {
-        vertx.close(context.asyncAssertSuccess());
+        vertx.undeploy(deploymentId, context.asyncAssertSuccess(Void -> {
+            vertx.close(context.asyncAssertSuccess());
+            context.async().complete();
+        }));
+       // context.async().awaitSuccess();
     }
 
     @Test
