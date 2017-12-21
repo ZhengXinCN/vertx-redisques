@@ -20,7 +20,7 @@ import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
-import static org.hamcrest.number.OrderingComparison.greaterThan;
+import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
 import static org.swisspush.redisques.util.RedisquesAPI.buildEnqueueOperation;
 import static org.swisspush.redisques.util.RedisquesAPI.buildPutLockOperation;
 
@@ -246,6 +246,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
                 });
             });
         });
+        async.awaitSuccess();
     }
 
     @Test
@@ -278,6 +279,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
                 });
             });
         });
+        async.awaitSuccess();
     }
 
     @Test
@@ -687,6 +689,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
                 async.complete();
             });
         });
+        async.awaitSuccess();
     }
 
     @Test
@@ -714,6 +717,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
                 async.complete();
             });
         });
+        async.awaitSuccess();
     }
 
     @Test
@@ -739,6 +743,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
                 });
             });
         });
+        async.awaitSuccess();
     }
 
     @Test
@@ -772,6 +777,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
 
             async.complete();
         });
+        async.awaitSuccess();
     }
 
     @Test
@@ -795,6 +801,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
 
             async.complete();
         });
+        async.awaitSuccess();
     }
 
     @Test
@@ -825,6 +832,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
                 async.complete();
             });
         });
+        async.awaitSuccess();
     }
 
     @Test
@@ -855,6 +863,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
                 async.complete();
             });
         });
+        async.awaitSuccess();
     }
 
     @Test
@@ -891,6 +900,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
                 async.complete();
             });
         });
+        async.awaitSuccess();
     }
 
     @Test
@@ -917,10 +927,11 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
                     .statusCode(200)
                     .body(
                             "requestedBy", equalTo(requestedBy),
-                            "timestamp", greaterThan(ts)
+                            "timestamp", greaterThanOrEqualTo(ts)
                     );
             async.complete();
         });
+        async.awaitSuccess();
     }
 
     @Test
@@ -1013,6 +1024,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
 
             async.complete();
         });
+        async.awaitSuccess();
     }
 
     @Test
