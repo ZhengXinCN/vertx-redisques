@@ -1,16 +1,16 @@
 package org.swisspush.redisques.handler;
 
 import com.jayway.restassured.RestAssured;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.DeploymentOptions;
+import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.Timeout;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.swisspush.redisques.AbstractTestCase;
 import org.swisspush.redisques.RedisQues;
 import org.swisspush.redisques.util.RedisquesConfiguration;
@@ -32,6 +32,7 @@ import static org.swisspush.redisques.util.RedisquesAPI.buildPutLockOperation;
 
 public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     protected static String deploymentId = "";
+    private Vertx testVertx;
     private final String queueItemValid = "{\n" +
             "  \"method\": \"PUT\",\n" +
             "  \"uri\": \"/some/url/123/456\",\n" +
@@ -115,7 +116,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Before
     public void deployRedisques(TestContext context) {
         Async async = context.async();
-        vertx = Vertx.vertx();
+        testVertx = Vertx.vertx();
 
         RestAssured.baseURI = "http://localhost";
         RestAssured.port = Integer.getInteger("http.port", 7070);
@@ -132,7 +133,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
 
         RedisQues redisQues = new RedisQues();
 
-        vertx.deployVerticle(redisQues, new DeploymentOptions().setConfig(config), context.asyncAssertSuccess(event -> {
+        testVertx.deployVerticle(redisQues, new DeploymentOptions().setConfig(config), context.asyncAssertSuccess(event -> {
             deploymentId = event;
             log.info("vert.x Deploy - " + redisQues.getClass().getSimpleName() + " was successful.");
             jedis = new Jedis("localhost", 6379, 5000);
@@ -143,13 +144,15 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
 
     @After
     public void tearDown(TestContext context) {
-        vertx.undeploy(deploymentId, context.asyncAssertSuccess(Void -> {
-            vertx.close(context.asyncAssertSuccess());
+        testVertx.undeploy(deploymentId, context.asyncAssertSuccess(Void -> {
+            testVertx.close(context.asyncAssertSuccess());
             context.async().complete();
         }));
-       // context.async().awaitSuccess();
     }
 
+    protected void eventBusSend(JsonObject operation, Handler<AsyncResult<Message<JsonObject>>> handler){
+        testVertx.eventBus().send(getRedisquesAddress(), operation, handler);
+    }
     @Test
     public void testUnknownRequestUrl(TestContext context) {
         Async async = context.async();
