@@ -143,11 +143,12 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     }
 
     @After
-    public void tearDown(TestContext context) {
+    public void tearDown(TestContext context) throws InterruptedException {
         testVertx.undeploy(deploymentId, context.asyncAssertSuccess(Void -> {
             testVertx.close(context.asyncAssertSuccess());
             context.async().complete();
         }));
+        Thread.sleep(500);
     }
 
     protected void eventBusSend(JsonObject operation, Handler<AsyncResult<Message<JsonObject>>> handler){
