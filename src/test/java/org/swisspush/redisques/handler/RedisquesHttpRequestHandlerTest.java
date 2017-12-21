@@ -124,7 +124,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
                 .address(getRedisquesAddress())
                 .processorAddress("processor-address")
                 .redisEncoding("ISO-8859-1")
-                .refreshPeriod(2)
+                //.refreshPeriod(10)
                 .httpRequestHandlerEnabled(true)
                 .httpRequestHandlerPort(7070)
                 .build()
