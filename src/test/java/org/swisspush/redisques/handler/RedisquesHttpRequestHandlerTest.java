@@ -125,7 +125,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
                 .address(getRedisquesAddress())
                 .processorAddress("processor-address")
                 .redisEncoding("ISO-8859-1")
-                //.refreshPeriod(10)
+                .refreshPeriod(2)
                 .httpRequestHandlerEnabled(true)
                 .httpRequestHandlerPort(7070)
                 .build()
@@ -143,12 +143,12 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     }
 
     @After
-    public void tearDown(TestContext context) throws InterruptedException {
+    public void tearDown(TestContext context) {
+        RestAssured.reset();
         testVertx.undeploy(deploymentId, context.asyncAssertSuccess(Void -> {
             testVertx.close(context.asyncAssertSuccess());
             context.async().complete();
         }));
-        Thread.sleep(500);
     }
 
     protected void eventBusSend(JsonObject operation, Handler<AsyncResult<Message<JsonObject>>> handler){
