@@ -78,7 +78,7 @@ public class RedisQuesTest extends AbstractTestCase {
             context.assertEquals(configuration.getLong("processorDelayMax"), 0L);
 
             context.assertFalse(configuration.getBoolean("httpRequestHandlerEnabled"));
-            context.assertEquals(configuration.getInteger("httpRequestHandlerPort"), 27070);
+            context.assertEquals(configuration.getInteger("httpRequestHandlerPort"), 7070);
             context.assertEquals(configuration.getString("httpRequestHandlerPrefix"), "/queuing");
             context.assertEquals(configuration.getString("httpRequestHandlerUserHeader"), "x-rp-usr");
 

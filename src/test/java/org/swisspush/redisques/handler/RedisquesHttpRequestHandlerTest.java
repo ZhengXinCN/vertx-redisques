@@ -113,13 +113,16 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Rule
     public Timeout rule = Timeout.seconds(15);
 
+    @BeforeClass
+    public static void beforeClass() {
+        RestAssured.baseURI = "http://127.0.0.1";
+        RestAssured.port = 7070;
+    }
+
     @Before
     public void deployRedisques(TestContext context) {
         Async async = context.async();
         testVertx = Vertx.vertx();
-
-        RestAssured.baseURI = "http://localhost";
-        RestAssured.port = Integer.getInteger("http.port", 27070);
 
         JsonObject config = RedisquesConfiguration.with()
                 .address(getRedisquesAddress())
@@ -127,7 +130,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
                 .redisEncoding("ISO-8859-1")
                 .refreshPeriod(2)
                 .httpRequestHandlerEnabled(true)
-                .httpRequestHandlerPort(27070)
+                .httpRequestHandlerPort(7070)
                 .build()
                 .asJsonObject();
 
@@ -151,9 +154,10 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
         }));
     }
 
-    protected void eventBusSend(JsonObject operation, Handler<AsyncResult<Message<JsonObject>>> handler){
+    protected void eventBusSend(JsonObject operation, Handler<AsyncResult<Message<JsonObject>>> handler) {
         testVertx.eventBus().send(getRedisquesAddress(), operation, handler);
     }
+
     @Test
     public void testUnknownRequestUrl(TestContext context) {
         Async async = context.async();

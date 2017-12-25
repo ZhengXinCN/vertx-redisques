@@ -280,7 +280,7 @@ public class RedisquesConfiguration {
             this.processorDelayMax = 0;
             this.httpRequestHandlerEnabled = false;
             this.httpRequestHandlerPrefix = "/queuing";
-            this.httpRequestHandlerPort = 27070;
+            this.httpRequestHandlerPort = 7070;
             this.httpRequestHandlerUserHeader = "x-rp-usr";
         }
 
