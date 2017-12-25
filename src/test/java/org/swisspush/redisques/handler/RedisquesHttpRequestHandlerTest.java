@@ -117,6 +117,8 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     public void deployRedisques(TestContext context) {
         Async async = context.async();
         testVertx = Vertx.vertx();
+        jedis = new Jedis("localhost", 6379, 5000);
+        jedis.flushAll();
 
         RestAssured.baseURI = "http://localhost";
         RestAssured.port = Integer.getInteger("http.port", 7070);
@@ -136,9 +138,6 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
         testVertx.deployVerticle(redisQues, new DeploymentOptions().setConfig(config), context.asyncAssertSuccess(event -> {
             deploymentId = event;
             log.info("vert.x Deploy - " + redisQues.getClass().getSimpleName() + " was successful.");
-            jedis = new Jedis("localhost", 6379, 5000);
-            jedis.flushAll();
-
             async.complete();
         }));
         async.awaitSuccess();
