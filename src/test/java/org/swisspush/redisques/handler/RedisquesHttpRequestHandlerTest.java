@@ -117,11 +117,9 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     public void deployRedisques(TestContext context) {
         Async async = context.async();
         testVertx = Vertx.vertx();
-        jedis = new Jedis("localhost", 6379, 5000);
-        jedis.flushAll();
 
         RestAssured.baseURI = "http://localhost";
-        RestAssured.port = Integer.getInteger("http.port", 7070);
+        RestAssured.port = Integer.getInteger("http.port", 27070);
 
         JsonObject config = RedisquesConfiguration.with()
                 .address(getRedisquesAddress())
@@ -129,7 +127,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
                 .redisEncoding("ISO-8859-1")
                 .refreshPeriod(2)
                 .httpRequestHandlerEnabled(true)
-                .httpRequestHandlerPort(7070)
+                .httpRequestHandlerPort(27070)
                 .build()
                 .asJsonObject();
 
@@ -138,6 +136,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
         testVertx.deployVerticle(redisQues, new DeploymentOptions().setConfig(config), context.asyncAssertSuccess(event -> {
             deploymentId = event;
             log.info("vert.x Deploy - " + redisQues.getClass().getSimpleName() + " was successful.");
+            jedis = new Jedis("localhost", 6379, 5000);
             async.complete();
         }));
         async.awaitSuccess();
@@ -242,7 +241,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void getQueuesCount(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         eventBusSend(buildEnqueueOperation("queue_1", "item1_1"), m1 -> {
             eventBusSend(buildEnqueueOperation("queue_2", "item2_1"), m2 -> {
                 eventBusSend(buildEnqueueOperation("queue_3", "item3_1"), m3 -> {
@@ -261,7 +260,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void getQueuesCountNoQueues(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         when()
                 .get("/queuing/queues/?count")
                 .then().assertThat()
@@ -273,7 +272,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void listQueues(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         eventBusSend(buildEnqueueOperation("queue_1", "item1_1"), m1 -> {
             eventBusSend(buildEnqueueOperation("queue_2", "item2_1"), m2 -> {
                 eventBusSend(buildEnqueueOperation("queue_3", "item3_1"), m3 -> {
@@ -294,7 +293,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void enqueueValidBody(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         String queueName = "queue_" + System.currentTimeMillis();
         assertKeyCount(context, getQueuesRedisKeyPrefix(), 0);
         assertKeyCount(context, getQueuesRedisKeyPrefix() + queueName, 0);
@@ -315,7 +314,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void enqueueInvalidBody(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         String queueName = "queue_" + System.currentTimeMillis();
         assertKeyCount(context, getQueuesRedisKeyPrefix(), 0);
         assertKeyCount(context, getQueuesRedisKeyPrefix() + queueName, 0);
@@ -332,7 +331,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void lockedEnqueueValidBody(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         String queueName = "queue_" + System.currentTimeMillis();
         assertKeyCount(context, getQueuesRedisKeyPrefix(), 0);
         assertKeyCount(context, getQueuesRedisKeyPrefix() + queueName, 0);
@@ -354,7 +353,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void lockedEnqueueValidBodyRequestedByHeader(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         long ts = System.currentTimeMillis();
         String queueName = "queue_" + ts;
         String requestedBy = "user_" + ts;
@@ -380,7 +379,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void lockedEnqueueInvalidBody(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         String queueName = "queue_" + System.currentTimeMillis();
         assertKeyCount(context, getQueuesRedisKeyPrefix(), 0);
         assertKeyCount(context, getQueuesRedisKeyPrefix() + queueName, 0);
@@ -398,7 +397,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void addQueueItemValidBody(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         String queueName = "queue_" + System.currentTimeMillis();
         assertKeyCount(context, getQueuesRedisKeyPrefix(), 0);
         assertKeyCount(context, getQueuesRedisKeyPrefix() + queueName, 0);
@@ -417,7 +416,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void addQueueItemInvalidBody(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         String queueName = "queue_" + System.currentTimeMillis();
         assertKeyCount(context, getQueuesRedisKeyPrefix(), 0);
         assertKeyCount(context, getQueuesRedisKeyPrefix() + queueName, 0);
@@ -432,7 +431,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void getSingleQueueItemWithNonNumericIndex(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         String queueName = "queue_" + System.currentTimeMillis();
         assertKeyCount(context, getQueuesRedisKeyPrefix(), 0);
         assertKeyCount(context, getQueuesRedisKeyPrefix() + queueName, 0);
@@ -447,7 +446,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void getSingleQueueItemWithNonExistingIndex(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         String queueName = "queue_" + System.currentTimeMillis();
         assertKeyCount(context, getQueuesRedisKeyPrefix(), 0);
         assertKeyCount(context, getQueuesRedisKeyPrefix() + queueName, 0);
@@ -462,7 +461,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void getSingleQueueItem(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         String queueName = "queue_" + System.currentTimeMillis();
         assertKeyCount(context, getQueuesRedisKeyPrefix(), 0);
         assertKeyCount(context, getQueuesRedisKeyPrefix() + queueName, 0);
@@ -483,7 +482,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void replaceSingleQueueItemOfUnlockedQueue(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         String queueName = "queue_" + System.currentTimeMillis();
         assertKeyCount(context, getQueuesRedisKeyPrefix(), 0);
         assertKeyCount(context, getQueuesRedisKeyPrefix() + queueName, 0);
@@ -513,7 +512,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void replaceSingleQueueItemWithInvalidBody(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         String queueName = "queue_" + System.currentTimeMillis();
         assertKeyCount(context, getQueuesRedisKeyPrefix(), 0);
         assertKeyCount(context, getQueuesRedisKeyPrefix() + queueName, 0);
@@ -541,7 +540,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void replaceSingleQueueItemWithNotExistingIndex(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         String queueName = "queue_" + System.currentTimeMillis();
         assertKeyCount(context, getQueuesRedisKeyPrefix(), 0);
         assertKeyCount(context, getQueuesRedisKeyPrefix() + queueName, 0);
@@ -569,7 +568,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void replaceSingleQueueItem(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         String queueName = "queue_" + System.currentTimeMillis();
         assertKeyCount(context, getQueuesRedisKeyPrefix(), 0);
         assertKeyCount(context, getQueuesRedisKeyPrefix() + queueName, 0);
@@ -597,7 +596,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void deleteQueueItemWithNonNumericIndex(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         String queueName = "queue_" + System.currentTimeMillis();
         assertKeyCount(context, getQueuesRedisKeyPrefix(), 0);
         assertKeyCount(context, getQueuesRedisKeyPrefix() + queueName, 0);
@@ -618,7 +617,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void deleteQueueItemOfUnlockedQueue(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         String queueName = "queue_" + System.currentTimeMillis();
         assertKeyCount(context, getQueuesRedisKeyPrefix(), 0);
         assertKeyCount(context, getQueuesRedisKeyPrefix() + queueName, 0);
@@ -638,7 +637,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void deleteQueueItemNonExistingIndex(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         String queueName = "queue_" + System.currentTimeMillis();
         assertKeyCount(context, getQueuesRedisKeyPrefix(), 0);
         assertKeyCount(context, getQueuesRedisKeyPrefix() + queueName, 0);
@@ -661,7 +660,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void deleteQueueItem(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         String queueName = "queue_" + System.currentTimeMillis();
         assertKeyCount(context, getQueuesRedisKeyPrefix(), 0);
         assertKeyCount(context, getQueuesRedisKeyPrefix() + queueName, 0);
@@ -687,7 +686,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void getQueueItemsCount(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         eventBusSend(buildEnqueueOperation("queueEnqueue", "helloEnqueue"), message -> {
             eventBusSend(buildEnqueueOperation("queueEnqueue", "helloEnqueue2"), message2 -> {
                 when()
@@ -704,7 +703,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void getQueueItemsCountOfUnknownQueue(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         when()
                 .get("/queuing/queues/unknownQueue?count")
                 .then().assertThat()
@@ -716,7 +715,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void listQueueItems(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         eventBusSend(buildEnqueueOperation("queueEnqueue", "helloEnqueue"), message -> {
             eventBusSend(buildEnqueueOperation("queueEnqueue", "helloEnqueue2"), message2 -> {
                 when().get("/queuing/queues/queueEnqueue")
@@ -732,7 +731,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void listQueueItemsWithLimitParameter(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         eventBusSend(buildEnqueueOperation("queueEnqueue", "helloEnqueue1"), m1 -> {
             eventBusSend(buildEnqueueOperation("queueEnqueue", "helloEnqueue2"), m2 -> {
                 eventBusSend(buildEnqueueOperation("queueEnqueue", "helloEnqueue3"), m3 -> {
@@ -768,7 +767,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void deleteAllQueueItems(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         eventBusSend(buildEnqueueOperation("queueEnqueue", "helloEnqueue"), message -> {
             assertKeyCount(context, getQueuesRedisKeyPrefix(), 1);
 
@@ -792,7 +791,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void deleteAllQueueItemsWithUnlockOfNonExistingLock(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         eventBusSend(buildEnqueueOperation("queueEnqueue", "helloEnqueue"), message -> {
             assertKeyCount(context, getQueuesRedisKeyPrefix(), 1);
 
@@ -816,7 +815,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void deleteAllQueueItemsWithNoUnlockOfExistingLock(TestContext context) {
         Async async = context.async();
-
+        flushAll();
 
         eventBusSend(buildPutLockOperation("queueEnqueue", "someuser"), putLockMessage -> {
             context.assertTrue(jedis.hexists(getLocksRedisKey(), "queueEnqueue"));
@@ -847,7 +846,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void deleteAllQueueItemsWithDoUnlockOfExistingLock(TestContext context) {
         Async async = context.async();
-
+        flushAll();
 
         eventBusSend(buildPutLockOperation("queueEnqueue", "someuser"), putLockMessage -> {
             context.assertTrue(jedis.hexists(getLocksRedisKey(), "queueEnqueue"));
@@ -878,7 +877,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void deleteAllQueueItemsOfNonExistingQueue(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         when().delete("/queuing/queues/notExistingQueue_" + System.currentTimeMillis())
                 .then().assertThat()
                 .statusCode(200);
@@ -888,7 +887,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void getAllLocksWhenNoLocksPresent(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         when().get("/queuing/locks/")
                 .then().assertThat()
                 .statusCode(200)
@@ -899,7 +898,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void getAllLocks(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         eventBusSend(buildPutLockOperation("queue1", "someuser"), message -> {
             eventBusSend(buildPutLockOperation("queue2", "someuser"), message2 -> {
                 when().get("/queuing/locks/")
@@ -915,7 +914,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void getSingleLockNotExisting(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         when().get("/queuing/locks/notExisiting_" + System.currentTimeMillis())
                 .then().assertThat()
                 .statusCode(404)
@@ -926,7 +925,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void getSingleLock(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         Long ts = System.currentTimeMillis();
         String lock = "myLock_" + ts;
         String requestedBy = "someuser_" + ts;
@@ -946,7 +945,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void addLock(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         long ts = System.currentTimeMillis();
         String lock = "myLock_" + ts;
         String requestedBy = "someuser_" + ts;
@@ -968,7 +967,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void addLockWrongUserHeader(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         long ts = System.currentTimeMillis();
         String lock = "myLock_" + ts;
         String requestedBy = "someuser_" + ts;
@@ -990,7 +989,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void addLockNoUserHeader(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         String lock = "myLock_" + System.currentTimeMillis();
 
         context.assertFalse(jedis.hexists(getLocksRedisKey(), lock));
@@ -1009,7 +1008,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void deleteSingleLockNotExisting(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         when().delete("/queuing/locks/notExisiting_" + System.currentTimeMillis()).then().assertThat().statusCode(200);
         async.complete();
     }
@@ -1017,7 +1016,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void deleteSingleLock(TestContext context) {
         Async async = context.async();
-
+        flushAll();
         long ts = System.currentTimeMillis();
         String lock = "myLock_" + ts;
         String requestedBy = "someuser_" + ts;
@@ -1039,7 +1038,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Test
     public void getMonitorInformation(TestContext context) {
         Async async = context.async();
-
+        flushAll();
 
         when().get("/queuing/monitor").then().assertThat().statusCode(200)
                 .body("queues", empty());

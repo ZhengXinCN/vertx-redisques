@@ -32,7 +32,7 @@ public class RedisquesConfigurationTest {
         testContext.assertEquals(config.getProcessorDelayMax(), 0L);
         testContext.assertFalse(config.getHttpRequestHandlerEnabled());
         testContext.assertEquals(config.getHttpRequestHandlerPrefix(), "/queuing");
-        testContext.assertEquals(config.getHttpRequestHandlerPort(), 7070);
+        testContext.assertEquals(config.getHttpRequestHandlerPort(), 27070);
         testContext.assertEquals(config.getHttpRequestHandlerUserHeader(), "x-rp-usr");
     }
 
@@ -90,7 +90,7 @@ public class RedisquesConfigurationTest {
         testContext.assertEquals(json.getInteger(PROP_PROCESSOR_DELAY_MAX), 0);
         testContext.assertFalse(json.getBoolean(PROP_HTTP_REQUEST_HANDLER_ENABLED));
         testContext.assertEquals(json.getString(PROP_HTTP_REQUEST_HANDLER_PREFIX), "/queuing");
-        testContext.assertEquals(json.getInteger(PROP_HTTP_REQUEST_HANDLER_PORT), 7070);
+        testContext.assertEquals(json.getInteger(PROP_HTTP_REQUEST_HANDLER_PORT), 27070);
         testContext.assertEquals(json.getString(PROP_HTTP_REQUEST_HANDLER_USER_HEADER), "x-rp-usr");
     }
 
@@ -149,7 +149,7 @@ public class RedisquesConfigurationTest {
         testContext.assertEquals(config.getProcessorDelayMax(), 0L);
         testContext.assertFalse(config.getHttpRequestHandlerEnabled());
         testContext.assertEquals(config.getHttpRequestHandlerPrefix(), "/queuing");
-        testContext.assertEquals(config.getHttpRequestHandlerPort(), 7070);
+        testContext.assertEquals(config.getHttpRequestHandlerPort(), 27070);
         testContext.assertEquals(config.getHttpRequestHandlerUserHeader(), "x-rp-usr");
     }
 
