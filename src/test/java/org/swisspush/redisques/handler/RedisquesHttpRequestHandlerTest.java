@@ -113,17 +113,13 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
     @Rule
     public Timeout rule = Timeout.seconds(15);
 
-    @BeforeClass
-    public static void beforeClass() {
-        RestAssured.baseURI = "http://127.0.0.1";
-        RestAssured.port = 7070;
-    }
 
     @Before
     public void deployRedisques(TestContext context) {
         Async async = context.async();
         testVertx = Vertx.vertx();
-
+        RestAssured.baseURI = "http://127.0.0.1/";
+        RestAssured.port = 7070;
         JsonObject config = RedisquesConfiguration.with()
                 .address(getRedisquesAddress())
                 .processorAddress("processor-address")
