@@ -34,7 +34,7 @@ public abstract class AbstractTestCase {
 
     protected void flushAll(){
         if(jedis != null){
-            //jedis.flushAll();
+            jedis.flushAll();
         }
     }
 
