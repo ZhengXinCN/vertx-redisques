@@ -144,7 +144,7 @@ public class RedisquesHttpRequestHandlerTest extends AbstractTestCase {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+               //do nothing
             }
             async.complete();
         }));
